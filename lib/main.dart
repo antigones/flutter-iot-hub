@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:iothub_position/table_utils.dart';
+import 'package:iothub_position/location.dart';
+import 'package:iothub_position/queue_utils.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -37,7 +38,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
 
-  Future<List> _myData = peekQMessages();
+  Future<List<Location>> _myData = peekQMessages();
 
   Future<void> _updateData() async {
     setState(() {
@@ -87,9 +88,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     // if we got our data
                   } else if (snapshot.hasData) {
                     // Extracting data from snapshot object
-                    final data = snapshot.data as List<LatLng>;
-                    return RefreshIndicator(onRefresh: peekQMessages,
-                      child:Center(
+                    final data = snapshot.data as List<Location>;
+                    final mapPoints = data.map((location) =>
+                      location.latLng
+                    );
+
+                    return Center(
                         child: SizedBox(
                           width: 500.0,
                           height: 500.0,
@@ -107,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               PolylineLayer(
                                 polylines: [
                                   Polyline(
-                                      points: data,
+                                      points: List.from(mapPoints),
                                       color: Colors.blue,
                                       strokeWidth: 5.0),
                                 ],
@@ -115,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ],
                           ),
                         ),
-                      ));
+                      );
                   }
                 }
 
@@ -132,7 +136,8 @@ class _MyHomePageState extends State<MyHomePage> {
              TextButton(
               onPressed: _updateData,
               child: const Text('Peek location queue'),
-            )
+            ),
+
           ],
         ),
       ),
