@@ -3,7 +3,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:iothub_position/location.dart';
 import 'package:iothub_position/queue_utils.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:workmanager/workmanager.dart';
 
 void main() async {
   runApp(const MyApp());

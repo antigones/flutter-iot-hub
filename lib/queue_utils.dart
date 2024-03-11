@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:azstore/azstore.dart';
 import 'package:iothub_position/location.dart';
-import 'package:latlong2/latlong.dart';
 
 
 List mockLocations = [
