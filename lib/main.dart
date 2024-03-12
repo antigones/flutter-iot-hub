@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:iothub_position/db_utils.dart';
 import 'package:iothub_position/location.dart';
 import 'package:iothub_position/queue_utils.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  await createDatabase();
+
   runApp(const MyApp());
 }
 
@@ -37,12 +43,32 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
 
-  Future<List<Location>> _myData = peekQMessages();
+  Future<List<Location>> _myData = locations();
+  double mapZoom = 18;
 
-  Future<void> _updateData() async {
+  Future<void> _peekData() async {
+    await peekQMessages();
     setState(() {
-      _myData = peekQMessages();
+      _myData = locations();
+    });
+  }
 
+  Future<void> _consumeData() async {
+    await getQMessages();
+    setState(() {
+      _myData = locations();
+    });
+  }
+
+  void _zoomUp() {
+    setState(() {
+      mapZoom++;
+    });
+  }
+
+  void _zoomDown() {
+    setState(() {
+      mapZoom--;
     });
   }
 
@@ -89,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     // Extracting data from snapshot object
                     final data = snapshot.data as List<Location>;
                     final mapPoints = data.map((location) =>
-                      location.latLng
+                      LatLng(location.lat, location.long)
                     );
 
                     return Center(
@@ -98,9 +124,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           height: 500.0,
                           child: FlutterMap(
                             options: MapOptions(
-                                center: LatLng(mockLocations[0]['lat'].toDouble(),
-                                    mockLocations[0]['long'].toDouble()),
-                                zoom: 2),
+                                center: LatLng(45.470024,
+                                    9.216240),
+                                zoom: mapZoom),
                             children: [
                               TileLayer(
                                 urlTemplate:
@@ -133,10 +159,21 @@ class _MyHomePageState extends State<MyHomePage> {
               future: _myData,
             ),
              TextButton(
-              onPressed: _updateData,
-              child: const Text('Peek location queue'),
+              onPressed: _peekData,
+              child: const Text('Peek location queue and write to sqlite'),
             ),
-
+            TextButton(
+              onPressed: _consumeData,
+              child: const Text('Consume location queue and write to sqlite'),
+            ),
+            TextButton(
+              onPressed: _zoomUp,
+              child: const Text('+ Zoom'),
+            ),
+            TextButton(
+              onPressed: _zoomDown,
+              child: const Text('- Zoom'),
+            ),
           ],
         ),
       ),
