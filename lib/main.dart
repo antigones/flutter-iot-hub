@@ -45,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<Location>> _myData = locations();
   double mapZoom = 18;
+  late final MapController _mapController;
 
   Future<void> _peekData() async {
     await peekQMessages();
@@ -60,16 +61,23 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _zoomUp() {
-    setState(() {
-      mapZoom++;
-    });
+  void _zoomIn() {
+    _mapController.moveAndRotate(LatLng(45.470024,
+        9.216240), ++mapZoom, 0);
   }
 
-  void _zoomDown() {
-    setState(() {
-      mapZoom--;
-    });
+  void _zoomOut() {
+    _mapController.moveAndRotate(LatLng(45.470024,
+        9.216240),--mapZoom,0);
+  }
+
+
+  @override
+  void initState()  {
+    super.initState();
+    _mapController = MapController();
+
+
   }
 
 
@@ -123,6 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           width: 500.0,
                           height: 500.0,
                           child: FlutterMap(
+                            mapController: _mapController,
                             options: MapOptions(
                                 center: LatLng(45.470024,
                                     9.216240),
@@ -167,12 +176,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Consume location queue and write to sqlite'),
             ),
             TextButton(
-              onPressed: _zoomUp,
-              child: const Text('+ Zoom'),
+              onPressed: _zoomIn,
+              child: const Text('(+) Zoom'),
             ),
             TextButton(
-              onPressed: _zoomDown,
-              child: const Text('- Zoom'),
+              onPressed: _zoomOut,
+              child: const Text('(-) Zoom'),
             ),
           ],
         ),
