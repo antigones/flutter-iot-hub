@@ -1,4 +1,4 @@
-import 'package:latlong2/latlong.dart';
+
 
 class Location {
   final int timestamp;

@@ -50,7 +50,6 @@ Future<List<Location>> locations() async {
   // Convert the list of each location's fields into a list of `Location` objects.
   return [
     for (final {
-    'id': id as int,
     'timestamp': timestamp as int,
     'lat': lat as double,
     'long': long as double,
