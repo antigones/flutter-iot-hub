@@ -3,8 +3,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:iothub_position/db_utils.dart';
 import 'package:iothub_position/location.dart';
+import 'package:iothub_position/location_table.dart';
 import 'package:iothub_position/queue_utils.dart';
 import 'package:latlong2/latlong.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,28 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: const TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.location_pin)),
+                Tab(icon: Icon(Icons.history)),
+              ],
+            ),
+
+          ),
+          body: const TabBarView(
+            children: [
+              MyHomePage(title: 'Locations'),
+              LocationTable(),
+
+            ],
+          ),
+        ),
+      ),
+
     );
   }
 }
@@ -89,17 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
+    return  Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
@@ -147,7 +160,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   Polyline(
                                       points: List.from(mapPoints),
                                       color: Colors.blue,
-                                      strokeWidth: 5.0),
+                                      strokeWidth: 2.0,
+
+                                  strokeCap: StrokeCap.butt),
                                 ],
                               ),
                             ],
@@ -167,10 +182,6 @@ class _MyHomePageState extends State<MyHomePage> {
               // inorder to display something on the Canvas
               future: _myData,
             ),
-             TextButton(
-              onPressed: _peekData,
-              child: const Text('Peek location queue and write to sqlite'),
-            ),
             TextButton(
               onPressed: _consumeData,
               child: const Text('Consume location queue and write to sqlite'),
@@ -185,7 +196,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }

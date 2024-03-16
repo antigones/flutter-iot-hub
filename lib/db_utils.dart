@@ -1,20 +1,26 @@
 
 
 // Define a function that inserts dogs into the database
+import 'package:flutter/foundation.dart';
 import 'package:iothub_position/location.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 late final Future<Database> database;
 
 Future<void> createDatabase() async {
   print('createDatabase()');
+  if (kIsWeb) {
+    // Change default factory on the web
+    databaseFactory = databaseFactoryFfiWeb;
+  }
   database = openDatabase(
   // Set the path to the database. Note: Using the `join` function from the
   // `path` package is best practice to ensure the path is correctly
   // constructed for each platform.
   join(await getDatabasesPath(), 'user_locations.db'),
-// When the database is first created, create a table to store dogs.
+// When the database is first created, create a table to store locations.
   onCreate: (db, version) {
 // Run the CREATE TABLE statement on the database.
   print('creating database');
@@ -45,7 +51,7 @@ Future<List<Location>> locations() async {
   final db = await database;
 
   // Query the table for all the user locations.
-  final List<Map<String, Object?>> locationMaps = await db.query('user_locations');
+  final List<Map<String, Object?>> locationMaps = await db.query('user_locations',orderBy: 'timestamp asc');
 
   // Convert the list of each location's fields into a list of `Location` objects.
   return [
